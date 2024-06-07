@@ -1,0 +1,77 @@
+// This command loads the CSV file located in the import directory.
+
+LOAD CSV WITH HEADERS FROM 'file:///updated_dataset.csv' AS row
+CREATE (b:Book {
+  BibNumber: row.BibNumber,
+  Title: row.Title,
+  Author: row.Author,
+  ISBN: row.ISBN,
+  PublicationYear: toInteger(row.PublicationYear),
+  Publisher: row.Publisher,
+  Subjects: row.Subjects,
+  ItemType: row.ItemType,
+  ItemCollection: row.ItemCollection,
+  FloatingItem: row.FloatingItem,
+  ItemLocation: row.ItemLocation,
+  ReportDate: row.ReportDate,
+  ItemCount: toInteger(row.ItemCount),
+  CheckoutDateTime: row.CheckoutDateTime,
+  AvailableCopies: toInteger(row.AvailableCopies)
+});
+
+// verify that the data has been correctly imported
+MATCH (b:Book)
+RETURN b
+LIMIT 10;
+
+// Queries 
+
+// Retrieve All Books
+MATCH (b:Book)
+RETURN b;
+
+// Find a Book by Title
+MATCH (b:Book {Title: "The forks over knives plan"})
+RETURN b;
+
+//Find all books by specific author
+MATCH (b:Book {Author: "Pulde, Alona."})
+RETURN b;
+//Count number of books 
+MATCH (b:Book)
+RETURN count(b) AS NumberOfBooks;
+
+//Delete a book by title 
+MATCH (b:Book {Title: "The forks over knives plan"})
+DELETE b;
+
+
+//Create a Relationship Between Two Books (for example, if they are part of a series)
+MATCH (b1:Book {Title: "The forks over knives plan"}), (b2:Book {Title: "Another book title"})
+CREATE (b1)-[:NEXT_IN_SERIES]->(b2)
+RETURN b1, b2;
+
+//Aggregate Function: Find the Average Number of Available Copies
+MATCH (b:Book)
+RETURN avg(b.AvailableCopies) AS AverageCopies;
+
+// Add new book Node 
+CREATE (b:Book {
+  BibNumber: '1842227',
+  Title: 'New Book Title',
+  Author: 'New Author',
+  ISBN: '1234567890123',
+  PublicationYear: 2021,
+  Publisher: 'New Publisher',
+  Subjects: 'New Subject',
+  ItemType: 'acbk',
+  ItemCollection: 'newcoll',
+  FloatingItem: 'no',
+  ItemLocation: 'newloc',
+  ReportDate: '2021-01-01',
+  ItemCount: 1,
+  CheckoutDateTime: '2021-06-01 12:00',
+  AvailableCopies: 5
+})
+RETURN b;
+
